@@ -3,12 +3,12 @@ const app  = express();
 const bodyParser = require("body-parser");
 var mysql = require('mysql');
 
-var con = mysql.createConnection({
-  host: "localhost",
-  port: 3306,
-  databasee: "nodejs",
-  user: "root",
-  password: ""
+var con = mysql.createConnection(
+  { host: 'localhost',
+    port: 3306, 
+    database: 'nodejs', 
+    user: 'root',
+    password:''
 });
 
 con.connect(function(err) {
@@ -30,25 +30,31 @@ app.get('/register', (req, res) =>{
     res.render('register', data);
 })
 
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/login', function(req, res, next){
     if (req.method == 'POST') {
       var email = req.body.email;
       var password = req.body.password;
-      con.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], function (err, rows, fields) {
-          if (err) throw err
-          if (rows.length <= 0) {
+      var query = `SELECT * FROM users WHERE email = "${email}" AND password = "${password}"`;
+      console.log(query);
+      con.query(query, function (err, rows, fields) {
+          if(err) throw console.log(err);
+          if(rows.length <= 0) {
               //req.flash('error', 'Please correct enter email and Password!')
               res.redirect('/')
           }else {
               //req.session.loggedin = true;
               //req.session.name = name;
-              res.redirect('/home');
+              res.redirect('/dashboard');
           }
       });
     }
-})   
+})
+app.get('/dashboard',function(req,res){
+  var data = { title : 'Dashboard '+appname};
+  res.render('dashboard', data);
+})
 
 
 
